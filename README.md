@@ -4,16 +4,14 @@
 
 ### Privacy-focused real-time communication built around peer-to-peer media
 
-<a href="https://github.com/tahakubilay/LiveHide">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&pause=900&center=true&vCenter=true&width=820&lines=Real-time+communication%2C+without+the+noise.;Peer-to-peer+media.+Privacy-first+thinking.;WebRTC+%E2%86%92+Signaling+%E2%86%92+Live+Connection" alt="Animated project overview" />
-</a>
+<img src="./assets/hero.svg" alt="Animated project header" />
 
 <br/>
 
 [![Portfolio](https://img.shields.io/badge/Portfolio-Taha%20Kubilay-181717?style=for-the-badge&logo=github)](https://github.com/tahakubilay)
 [![Repository](https://img.shields.io/badge/Repository-LiveHide-0A66C2?style=for-the-badge&logo=github)](https://github.com/tahakubilay/LiveHide)
-[![Status](https://img.shields.io/badge/Status-Portfolio%20Build-7C3AED?style=for-the-badge)](#-project-status)
-[![Demo](https://img.shields.io/badge/Live%20Demo-Coming%20Soon-F59E0B?style=for-the-badge&logo=webrtc)](#-live-demo)
+![Status](https://img.shields.io/badge/Status-Portfolio%20Build-7C3AED?style=for-the-badge)
+![Demo](https://img.shields.io/badge/Live%20Demo-Coming%20Soon-F59E0B?style=for-the-badge&logo=webrtc)
 
 <br/>
 
