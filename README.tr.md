@@ -4,7 +4,7 @@
 
 ### Relay-only WebRTC ve uygulama katmanı E2EE ile gizlilik odaklı 1:1 sesli/görüntülü iletişim
 
-<img src="./assets/hero.svg" alt="Animated project header" />
+<img src="./assets/hero.svg" alt="Animasyonlu proje başlığı" />
 
 <p>
   <a href="./README.md">English</a> ·
@@ -19,8 +19,8 @@
   <a href="https://github.com/tahakubilay/LiveHide">
     <img src="https://img.shields.io/badge/Source-LiveHide-0A66C2?style=for-the-badge&logo=github" alt="Repository" />
   </a>
-  <img src="https://img.shields.io/badge/Status-Portfolio%20Build-7C3AED?style=for-the-badge" alt="Status" />
-  <img src="https://img.shields.io/badge/Demo-Coming%20Soon-F59E0B?style=for-the-badge" alt="Demo coming soon" />
+  <img src="https://img.shields.io/badge/Status-Portfolio%20Build-7C3AED?style=for-the-badge" alt="Durum" />
+  <img src="https://img.shields.io/badge/Demo-Coming%20Soon-F59E0B?style=for-the-badge" alt="Demo yakında" />
 </p>
 
 ![Last Commit](https://img.shields.io/github/last-commit/tahakubilay/LiveHide?style=flat-square)
@@ -31,7 +31,7 @@
 
 ---
 
-## ✨ Genel Bakış
+## ✨ Kısaca
 
 | | |
 |---|---|
@@ -46,11 +46,7 @@
 > [!NOTE]
 > LiveHide bir mühendislik vaka çalışması olarak yayınlanıyor. Uygulama sıkı gizlilik invariants üzerine kuruludur; production güvenlik iddiaları yine de nihai deployment konfigürasyonu ve threat model üzerinden değerlendirilmelidir.
 
-## 🧭 Hızlı Gezinme
-
-[Overview](#-overview) · [Technical Core](#-technical-core) · [Connection Flow](#-connection-flow) · [Security](#-security--privacy) · [Demo](#-demo) · [Roadmap](#-project-status)
-
-## 🔎 Proje Özeti
+## 🔎 Genel Bakış
 
 LiveHide, 1:1 sesli/görüntülü görüşmeler için gizlilik odaklı bir gerçek zamanlı iletişim platformudur. Doğrudan host veya server-reflexive adayları tercih eden klasik WebRTC uygulamalarından farklı olarak LiveHide bilinçli biçimde **relay-only WebRTC** kullanır; böylece karşı tarafa ağ adresini açığa çıkarabilecek doğrudan bağlantıya fallback yapılmaz. Medya yolu self-hosted **coturn** üzerinden taşınırken, medya frame'leri ayrıca uygulama katmanında uçtan uca şifrelenir.
 
@@ -73,128 +69,128 @@ sequenceDiagram
     participant T as TURN Relay
     participant B as Peer B
 
-    A->>G: Join room + encrypted signaling
-    B->>G: Join room + encrypted signaling
-    G-->>A: Pairing / encrypted peer messages
-    G-->>B: Pairing / encrypted peer messages
+    A->>G: Odaya katıl + şifreli signaling
+    B->>G: Odaya katıl + şifreli signaling
+    G-->>A: Eşleşme / şifreli peer mesajları
+    G-->>B: Eşleşme / şifreli peer mesajları
 
-    A->>G: Request short-lived TURN credentials
-    B->>G: Request short-lived TURN credentials
-    G-->>A: Temporary TURN credentials
-    G-->>B: Temporary TURN credentials
+    A->>G: Kısa ömürlü TURN bilgisi iste
+    B->>G: Kısa ömürlü TURN bilgisi iste
+    G-->>A: Geçici TURN kimlik bilgileri
+    G-->>B: Geçici TURN kimlik bilgileri
 
-    A->>T: Allocate relay candidate
-    B->>T: Allocate relay candidate
+    A->>T: Relay candidate ayır
+    B->>T: Relay candidate ayır
 
-    A->>G: Encrypted offer / ICE
-    G-->>B: Forward encrypted offer / ICE
-    B->>G: Encrypted answer / ICE
-    G-->>A: Forward encrypted answer / ICE
+    A->>G: Şifreli offer / ICE
+    G-->>B: Şifreli offer / ICE ilet
+    B->>G: Şifreli answer / ICE
+    G-->>A: Şifreli answer / ICE ilet
 
-    A->>T: E2EE media frames
-    T-->>B: Relay encrypted media
-    B->>T: E2EE media frames
-    T-->>A: Relay encrypted media
+    A->>T: E2EE medya frame'leri
+    T-->>B: Şifreli medyayı relay et
+    B->>T: E2EE medya frame'leri
+    T-->>A: Şifreli medyayı relay et
 
-    A->>G: Setup complete
-    B->>G: Setup complete
-    Note over A,B: Signaling transport is suspended after setup
+    A->>G: Kurulum tamamlandı
+    B->>G: Kurulum tamamlandı
+    Note over A,B: Signaling transport kurulumdan sonra askıya alınır
 ```
 
-The diagram uses only widely supported Mermaid sequence syntax so it renders reliably on GitHub.
+Diyagram, GitHub'da güvenilir şekilde render olması için yalnızca geniş desteklenen Mermaid sequence syntax kullanır.
 
 ## ⚡ Mühendislik Öne Çıkanları
 
-| Area | Implementation direction |
+| Alan | Implementasyon yönü |
 |---|---|
-| 🧱 **Gateway** | Stateless Go service; no database or Redis required for room state |
-| 🔐 **Signaling** | AES-256-GCM encrypted envelopes, sequence protection and AAD binding |
-| 🌍 **Network Privacy** | TURN-only ICE policy; direct candidates are filtered and rejected |
-| ✅ **Runtime Verification** | Selected relay candidate verified through WebRTC stats before secure connected state |
-| 🎥 **Media E2EE** | Encoded transforms / Dedicated Worker with AES-256-GCM |
-| 🔑 **Peer Verification** | SAS-based peer verification |
-| 🎟️ **TURN Auth** | Short-lived temporary coturn credentials |
-| 🧹 **Persistence** | No browser storage for call state; transient in-memory server rooms |
-| 🚪 **Fail Closed** | Security/privacy precondition failure ends the session rather than downgrading |
-| 🔁 **Recovery** | Controlled signaling reopen and ICE restart for network transitions |
+| 🧱 **Gateway** | Stateless Go servisi; oda state'i için veritabanı veya Redis gerektirmez |
+| 🔐 **Signaling** | AES-256-GCM encrypted envelope, sequence koruması ve AAD binding |
+| 🌍 **Ağ Gizliliği** | TURN-only ICE policy; doğrudan candidate'lar filtrelenir ve reddedilir |
+| ✅ **Runtime Doğrulama** | Güvenli connected state'e geçmeden önce seçilen relay candidate WebRTC stats üzerinden doğrulanır |
+| 🎥 **Medya E2EE** | Encoded Transforms / Dedicated Worker ile AES-256-GCM |
+| 🔑 **Peer Doğrulama** | SAS tabanlı peer verification |
+| 🎟️ **TURN Auth** | Kısa ömürlü geçici coturn kimlik bilgileri |
+| 🧹 **Kalıcılık** | Call state için browser storage yok; geçici in-memory odalar |
+| 🚪 **Fail Closed** | Güvenlik/gizlilik ön koşulu başarısızsa session downgrade yerine sonlandırılır |
+| 🔁 **Recovery** | Ağ geçişlerinde kontrollü signaling reopen ve ICE restart |
 
 ## 🛡️ Güvenlik ve Gizlilik
 
-LiveHide treats privacy properties as explicit state-machine preconditions rather than UI labels.
+LiveHide gizlilik özelliklerini yalnızca UI etiketi olarak değil, state machine'in açık ön koşulları olarak ele alır.
 
-The connected state is reached only after the required conditions are satisfied, including peer authentication, cryptographic key derivation, TURN availability, WebRTC connectivity, relay-path verification and media-transform installation.
+Connected state'e ancak peer authentication, kriptografik key derivation, TURN availability, WebRTC bağlantısı, relay-path verification ve media transform kurulumu gibi zorunlu koşullar sağlandığında geçilir.
 
-Important design properties include:
+Önemli tasarım özellikleri:
 
-- relay-only WebRTC instead of direct candidate fallback
-- encrypted signaling with replay/tamper protection
-- application-layer media E2EE
-- temporary TURN credentials
-- no plaintext SDP/ICE forwarding through the gateway
-- no persistent room database
-- no browser persistence for call state
-- signaling transport shutdown after setup
-- explicit fail-closed behavior when relay/E2EE requirements cannot be met
+- Doğrudan candidate fallback yerine relay-only WebRTC
+- Replay/tamper korumalı şifreli signaling
+- Uygulama katmanında media E2EE
+- Geçici TURN kimlik bilgileri
+- Gateway üzerinden plaintext SDP/ICE geçmemesi
+- Kalıcı room veritabanı olmaması
+- Call state için browser persistence olmaması
+- Setup sonrası signaling transport'un kapatılması/askıya alınması
+- Relay/E2EE gereksinimleri sağlanmazsa açık fail-closed davranışı
 
 > [!IMPORTANT]
-> TURN relays still carry network traffic and therefore remain part of the transport infrastructure. The privacy model is based on authenticated relay use plus end-to-end media encryption—not on pretending that no intermediary exists.
+> TURN relay'ler yine de ağ trafiğini taşır ve transport altyapısının bir parçasıdır. Gizlilik modeli “arada hiçbir servis yok” iddiasına değil, kimlik doğrulamalı relay kullanımı ile uçtan uca medya şifrelemesinin birlikte uygulanmasına dayanır.
 
 ## 🧪 Doğrulama
 
-The project documentation includes automated unit, race, security and end-to-end checks covering areas such as:
+Proje dokümantasyonu şu alanları kapsayan otomatik unit, race, security ve end-to-end kontrolleri içerir:
 
-- WebSocket protocol hardening
-- encrypted signaling behavior
-- relay-only candidate enforcement
-- real coturn integration
-- two-browser audio/video calls
-- application-layer media encryption
-- zero-persistence checks
-- negative / fail-closed scenarios
-- controlled ICE restart behavior
+- WebSocket protokol hardening
+- Şifreli signaling davranışı
+- Relay-only candidate enforcement
+- Gerçek coturn entegrasyonu
+- İki tarayıcı arasında sesli/görüntülü çağrı
+- Uygulama katmanı medya şifreleme
+- Zero-persistence kontrolleri
+- Negative / fail-closed senaryolar
+- Kontrollü ICE restart davranışı
 
-The final public documentation will publish the exact reproducible verification commands together with the sanitized source release.
+Final public dokümantasyon, sanitize edilmiş source release ile birlikte tekrar üretilebilir doğrulama komutlarını yayınlayacaktır.
 
 ## 🎬 Demo
 
-**Coming soon.**
+**Yakında.**
 
-The public demo will be added only after the deployment configuration is ready to preserve the same security invariants as the local/release build.
+Public demo yalnızca deployment konfigürasyonu local/release build ile aynı güvenlik invariants'ını koruyabildiğinde eklenecektir.
 
-Planned showcase:
+Planlanan showcase:
 
-- two-browser call flow
-- connection-state visualization
-- SAS verification
-- relay-path status
-- microphone/camera controls
-- short product walkthrough GIF
-- deployment notes
+- İki tarayıcı arası çağrı akışı
+- Bağlantı state görselleştirmesi
+- SAS doğrulama
+- Relay path durumu
+- Mikrofon/kamera kontrolleri
+- Kısa ürün walkthrough GIF'i
+- Deployment notları
 
 ## 🖼️ Ürün Vitrini
 
-| Call Interface | Security State | Connection Lifecycle |
+| Çağrı Arayüzü | Güvenlik Durumu | Bağlantı Yaşam Döngüsü |
 |---|---|---|
-| 🎥 Coming soon | 🛡️ Coming soon | ⚡ Coming soon |
+| 🎥 Yakında | 🛡️ Yakında | ⚡ Yakında |
 
 ## 🛣️ Proje Durumu
 
-- [x] Privacy-oriented architecture
+- [x] Gizlilik odaklı mimari
 - [x] Stateless Go gateway
-- [x] Encrypted signaling
+- [x] Şifreli signaling
 - [x] TURN-only WebRTC transport
-- [x] Application-layer media E2EE
+- [x] Uygulama katmanı media E2EE
 - [x] SAS peer verification
-- [x] Fail-closed connection checks
-- [x] Zero-persistence controls
-- [ ] Publish sanitized source
-- [ ] Add screenshots and product GIF
-- [ ] Publish reproducible technical documentation
-- [ ] Deploy public demo
+- [x] Fail-closed connection kontrolleri
+- [x] Zero-persistence kontrolleri
+- [ ] Sanitize edilmiş source'u yayınla
+- [ ] Ekran görüntüleri ve ürün GIF'i ekle
+- [ ] Tekrar üretilebilir teknik dokümantasyonu yayınla
+- [ ] Public demoyu deploy et
 
-## 💡 Bu Proje Neden Önemli
+## 💡 Bu Proje Neden Önemli?
 
-LiveHide is a networking and security engineering project rather than a standard CRUD application. It coordinates browser media capture, cryptographic state, WebSocket signaling, TURN allocation, WebRTC negotiation, runtime transport verification and UI lifecycle while keeping the system intentionally ephemeral.
+LiveHide standart bir CRUD uygulaması değil, networking ve security engineering projesidir. Tarayıcı medya yakalama, kriptografik state, WebSocket signaling, TURN allocation, WebRTC negotiation, runtime transport doğrulama ve UI lifecycle'ını koordine ederken sistemi bilinçli olarak geçici/ephemeral tutar.
 
 `Real-Time Systems` · `WebRTC` · `Networking` · `Applied Cryptography` · `Privacy Engineering`
 
@@ -202,8 +198,6 @@ LiveHide is a networking and security engineering project rather than a standard
 
 <div align="center">
 
-### Built by [Taha Kubilay](https://github.com/tahakubilay)
-
-[⬆ Back to top](#livehide)
+### Geliştiren: [Taha Kubilay](https://github.com/tahakubilay)
 
 </div>
