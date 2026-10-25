@@ -45,6 +45,18 @@ Bağlantı kurulurken:
 
 `Go` · `TypeScript` · `Vite` · `WebRTC` · `WebSocket` · `coturn` · `Caddy` · `Docker` · `WebCrypto`
 
+## Teknik Derinlemesine Bakış
+
+LiveHide'ın gizlilik modeli yalnızca tasarım seviyesinde tanımlanmaz; bağlantı sırasında runtime olarak zorlanır. Görüşme, Go signaling gateway üzerinden oda koordinasyonuyla başlar ancak gateway plaintext SDP veya ICE payload'larını almaz. Signaling verisi authenticated AES-256-GCM envelope'ları içinde taşınır, Additional Authenticated Data ile mesaj bağlamına bağlanır ve monoton artan sequence state ile replay girişimlerine karşı korunur.
+
+Peer ilişkisi kurulduktan sonra istemciler kısa ömürlü coturn kimlik bilgilerini alır ve `RTCPeerConnection` örneklerini `iceTransportPolicy: "relay"` ile oluşturur. Implementasyon yalnızca bu browser seçeneğine güvenmez: host, server-reflexive ve peer-reflexive candidate'lar filtrelenir. ICE negotiation tamamlandığında aktif candidate pair `RTCPeerConnection.getStats()` ile incelenir. Gerçekte seçilen transport yolu relay değilse session güvenli bağlantı durumuna geçirilmez.
+
+Medya gizliliği TURN'dan bağımsız olarak korunur. Encode edilmiş ses ve video frame'leri WebRTC Encoded Transforms ve Dedicated Worker üzerinden geçirilerek gönderimden önce uygulama katmanında AES-256-GCM ile şifrelenir. Böylece TURN sunucusu transport paketlerini relay eder ancak plaintext medyaya erişmesi gerekmez. Short Authentication String (SAS) ise katılımcıların peer kimlik durumunu ayrı bir kanaldan karşılaştırabilmesini sağlar.
+
+Setup tamamlandıktan sonra signaling kanalı da mümkün olduğunca küçültülür. Transport ve kriptografik ön koşullar sağlandığında WebSocket sürekli açık tutulmak yerine askıya alınır. Yalnızca kontrollü ICE recovery gerektiğinde, örneğin ağ değişiminden sonra, tekrar devreye alınır. Oda state'i gateway belleğinde geçici olarak tutulur ve session sona erdiğinde silinir.
+
+Hata politikası bilinçli olarak katıdır. Relay doğrulaması, kriptografik kurulum, peer doğrulama state'i veya başka bir güvenlik invariants'ı sağlanamazsa LiveHide daha düşük gizlilik seviyesine sessizce fallback yapmak yerine session'ı sonlandırır.
+
 ## Bağlantı Akışı
 
 ```mermaid
@@ -79,6 +91,14 @@ sequenceDiagram
 
     Note over A,B: Signaling setup sonrasında askıya alınır
 ```
+
+## Neden TURN-only?
+
+Klasik WebRTC genellikle peer'ler arasındaki en doğrudan yolu tercih eder; çünkü doğrudan bağlantılar gecikmeyi ve relay maliyetini azaltabilir. Ancak ICE bağlantı kurulumu sırasında peer ağ adresleri karşı tarafa görünür hale gelebilir.
+
+LiveHide farklı bir öncelik seçer: doğrudan P2P verimliliğinden önce ağ adresi gizliliğini korumayı hedefler. WebRTC'nin kimlik doğrulamalı TURN relay'ler üzerinden çalışmaya zorlanması sayesinde katılımcılar birbirleriyle doğrudan medya bağlantısı kurmak yerine relay altyapısıyla haberleşir.
+
+TURN-only kullanımı relay sunucusunun güvenilir bir medya endpoint'i olduğu anlamına gelmez. Medya E2EE ayrı bir katmanda uygulanır; relay şifreli trafiği taşıyabilir fakat plaintext ses veya videoya ihtiyaç duymaz. Böylece iki ayrı risk alanı birbirinden ayrılır: TURN doğrudan ağ görünürlüğünü sınırlar, uçtan uca medya şifreleme ise relay altyapısının taşıdığı medya hakkında öğrenebileceği bilgiyi sınırlar.
 
 ## Güvenlik Modeli
 
