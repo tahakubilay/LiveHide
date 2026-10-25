@@ -49,6 +49,18 @@ During call setup:
 
 `Go` · `TypeScript` · `Vite` · `WebRTC` · `WebSocket` · `coturn` · `Caddy` · `Docker` · `WebCrypto`
 
+## Technical Deep Dive
+
+The privacy model is enforced at runtime rather than described only as a design goal. A call begins with room coordination through the Go signaling gateway, but the gateway does not receive plaintext SDP or ICE payloads. Signaling data is wrapped in authenticated AES-256-GCM envelopes, bound to message context through additional authenticated data and protected against replay through monotonically increasing sequence state.
+
+Once the peer relationship is established, each client requests short-lived coturn credentials and creates its `RTCPeerConnection` with `iceTransportPolicy: "relay"`. The implementation does not rely on that browser option alone: host, server-reflexive and peer-reflexive candidates are filtered, and after ICE negotiation the selected candidate pair is inspected with `RTCPeerConnection.getStats()`. A session is not considered securely connected unless the active transport path is actually relayed.
+
+Media confidentiality is enforced independently of TURN. Encoded audio/video frames pass through WebRTC Encoded Transforms and a Dedicated Worker, where application-layer AES-256-GCM protection is applied before frames are transmitted. This means the TURN server is responsible for relaying transport packets but is not trusted with plaintext media. A Short Authentication String (SAS) gives participants an out-of-band way to compare peer identity state and detect an unexpected key relationship.
+
+The signaling channel is intentionally minimized after setup. Once transport and cryptographic prerequisites are satisfied, the WebSocket signaling path is suspended instead of remaining permanently open. It is re-established only when controlled ICE recovery is required, such as after a network transition. Room state remains ephemeral in gateway memory and is removed when the session ends.
+
+The failure policy is deliberately strict. If relay verification, cryptographic setup, peer verification state or another required security invariant cannot be satisfied, LiveHide terminates the session rather than silently falling back to a less private connection mode.
+
 ## Connection Flow
 
 ```mermaid
@@ -83,6 +95,14 @@ sequenceDiagram
 
     Note over A,B: Signaling is suspended after setup
 ```
+
+## Why TURN-only?
+
+Conventional WebRTC generally prefers the most direct path between peers because direct connectivity can reduce latency and relay cost. That behavior can also expose peer network addresses as part of ICE connectivity establishment.
+
+LiveHide makes a different trade-off: it prioritizes network-address privacy over the efficiency of direct peer-to-peer routing. By forcing WebRTC through authenticated TURN relays, each participant communicates with the relay infrastructure instead of establishing a direct media path to the other peer.
+
+TURN-only transport does **not** make the relay a trusted media endpoint. Application-layer E2EE is applied separately, so the relay can forward encrypted traffic without needing access to plaintext audio or video. The design therefore separates two concerns: TURN limits direct network exposure, while end-to-end media encryption limits what the relay can learn from the media it transports.
 
 ## Security Model
 
