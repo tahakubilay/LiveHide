@@ -4,7 +4,7 @@
 
 ### Privacy-first 1:1 audio/video communication with relay-only WebRTC and application-layer E2EE
 
-<img src="./assets/hero.svg" alt="Animated project header" />
+<img src="./assets/hero.svg" alt="LiveHide project visual identity" />
 
 <p><a href="./README.md"><strong>English</strong></a> · <a href="./README.de.md">Deutsch</a> · <a href="./README.tr.md">Türkçe</a></p>
 
