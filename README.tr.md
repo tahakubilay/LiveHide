@@ -20,9 +20,9 @@
 
 ## Genel Bakış
 
-LiveHide, 1:1 sesli ve görüntülü görüşmeler için gizlilik odaklı bir gerçek zamanlı iletişim platformudur.
+LiveHide; **relay-only WebRTC, şifreli signaling, uygulama katmanında uçtan uca medya şifreleme ve fail-closed güvenlik kontrolleri** üzerine kurulu, gizlilik odaklı 1:1 sesli ve görüntülü iletişim sistemidir.
 
-Mimari, signaling ve medya taşıma katmanlarını birbirinden ayırır. Stateless Go gateway oda üyeliğini, şifreli signaling mesajlarını ve kısa ömürlü TURN kimlik bilgilerini koordine eder. WebRTC medyası yalnızca kimlik doğrulamalı TURN relay'ler üzerinden taşınır ve ayrıca uygulama katmanında uçtan uca şifrelenir.
+Mimari, signaling ve medya taşıma katmanlarını birbirinden ayırır. Go gateway oda üyeliğini, şifreli signaling mesajlarını ve kısa ömürlü TURN kimlik bilgilerini koordine eder. WebRTC trafiği kimlik doğrulamalı TURN relay'ler üzerinden taşınırken encode edilmiş medya frame'leri bağımsız olarak uygulama katmanında şifrelenir. Relay ağ altyapısının bir parçasıdır fakat taşıma işlevini yerine getirmek için plaintext medyaya erişmesi gerekmez.
 
 ## Teknik Mimari
 
