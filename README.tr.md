@@ -4,7 +4,7 @@
 
 ### Relay-only WebRTC ve uygulama katmanı E2EE ile gizlilik odaklı 1:1 sesli/görüntülü iletişim
 
-<img src="./assets/hero.svg" alt="Animasyonlu proje başlığı" />
+<img src="./assets/hero.svg" alt="LiveHide proje görsel kimliği" />
 
 <p><a href="./README.md">English</a> · <a href="./README.de.md">Deutsch</a> · <a href="./README.tr.md"><strong>Türkçe</strong></a></p>
 
