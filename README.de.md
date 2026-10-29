@@ -20,9 +20,9 @@
 
 ## Überblick
 
-LiveHide ist eine datenschutzorientierte Echtzeit-Kommunikationsplattform für 1:1-Audio- und Videoanrufe.
+LiveHide ist ein datenschutzorientiertes System für 1:1-Audio- und Videokommunikation mit **Relay-only WebRTC, verschlüsselter Signalisierung, Ende-zu-Ende-Medienverschlüsselung auf Anwendungsebene und Fail-closed-Sicherheitsprüfungen**.
 
-Die Architektur trennt Signalisierung und Medientransport. Ein zustandsloses Go-Gateway koordiniert Room-Mitgliedschaft, verschlüsselte Signalisierungsnachrichten und kurzlebige TURN-Zugangsdaten. Die WebRTC-Medien werden ausschließlich über authentifizierte TURN-Relays transportiert und zusätzlich durch Ende-zu-Ende-Verschlüsselung auf Anwendungsebene geschützt.
+Die Architektur trennt Signalisierung und Medientransport. Ein Go-Gateway koordiniert Room-Mitgliedschaft, verschlüsselte Signalisierungsnachrichten und kurzlebige TURN-Zugangsdaten. Authentifizierte TURN-Relays transportieren den WebRTC-Verkehr, während kodierte Medienframes unabhängig davon auf Anwendungsebene verschlüsselt werden. Das Relay bleibt Teil der Netzwerkinfrastruktur, benötigt für seine Transportaufgabe aber keinen Zugriff auf Klartextmedien.
 
 ## Technische Architektur
 
