@@ -140,6 +140,10 @@ LiveHide; gerçek zamanlı networking, uygulamalı kriptografi ve browser media 
 
 `Real-Time Systems` · `WebRTC` · `Networking` · `Applied Cryptography` · `Privacy Engineering`
 
+## Lisans
+
+LiveHide, [Apache License, Version 2.0](./LICENSE) ile lisanslanmıştır.
+
 ---
 
 <div align="center">
