@@ -140,6 +140,10 @@ LiveHide verbindet Echtzeit-Netzwerktechnik, angewandte Kryptografie und Browser
 
 `Real-Time Systems` · `WebRTC` · `Networking` · `Applied Cryptography` · `Privacy Engineering`
 
+## Lizenz
+
+LiveHide steht unter der [Apache License, Version 2.0](./LICENSE).
+
 ---
 
 <div align="center">
